@@ -5,12 +5,12 @@ import heroImage from "../assets/images/woman.png"; // Import your hero image
 
 const Hero = () => {
     return (
-        <div className="relative bg-white min-h-screen pt-32"> {/* Adjusted padding-top to pt-32 */}
+        <div className="relative bg-white min-h-screen pt-10"> {/* Adjusted padding-top */}
             {/* Hero Section */}
-            <header className="relative z-10 py-16">
-                <div className="container mx-auto px-6 flex flex-col md:flex-row items-center justify-between">
+            <header className="relative z-10 py-18">
+                <div className="container mx-auto px-12 flex flex-col md:flex-row items-center justify-between">
                     {/* Left side (Text) */}
-                    <div className="md:w-1/2 text-center md:text-left relative">
+                    <div className="md:w-1/2 text-center md:text-left relative mt-[-40px]">
                         <h1 className="text-6xl font-bold text-gray-800 leading-tight relative z-10">
                             <span className="block">Up Your <span className="text-blue-600">Skills</span></span>
                             <span className="block">To <span className="text-blue-600">Advance</span> Your</span>
@@ -27,28 +27,28 @@ const Hero = () => {
                     </div>
 
                     {/* Right side (Image) */}
-                    <div className="md:w-1/2 mt-8 md:mt-0 flex justify-center items-center relative">
-                        <div className="bg-blue-600 p-12 rounded-full flex justify-center items-center z-10"> {/* Add the circle container with blue background */}
+                    <div className="md:w-1/2 mt-2 md:mt-0 flex justify-center items-center relative">
+                        <div className="bg-blue-600 p-0 rounded-full flex justify-center items-center z-10">
                             <img
                                 src={heroImage}
                                 alt="Hero"
-                                className="object-contain w-40 h-40 rounded-full" // Make the image smaller in size and circular
+                                className="object-cover w-68 h-68 rounded-full" // Set object-cover to ensure it covers the circle
                             />
                         </div>
                     </div>
 
-                    {/* Left image behind text */}
+                    {/* Left image behind text (background) */}
                     <img
                         src={imageLeft}
-                        alt="Circle"
-                        className="absolute left-0 top-0 w-32 md:w-48 opacity-20 z-0"
+                        alt="Left Circle"
+                        className="absolute left-0 top-0 w-48 md:w-64 opacity-100 z-0" // Moved to background and size adjusted
                     />
 
                     {/* Right image behind text */}
                     <img
                         src={imageRight}
                         alt="Right Circle"
-                        className="absolute right-0 top-0 w-32 md:w-48 opacity-20 z-0"
+                        className="absolute right-0 top-0 w-32 md:w-48 opacity-100 z-0"
                     />
                 </div>
             </header>
