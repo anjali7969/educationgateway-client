@@ -11,19 +11,26 @@ const AboutUs = () => {
       <Navbar />
 
       {/* About Us Section */}
-      <section className="py-20 px-20 bg-white">
-        <div className="container mx-auto text-left mb-20">
-          <h2 className="text-4xl font-bold text-blue-800 mb-30">About Us</h2>
-          <p className="text-xl font-bold text-black-600  mb-10 ">
-            GateWay Education Providing The Best Opportunities To The Students Around The Globe.
-          </p>
-        </div>
+      <div className="relative bg-white min-h-screen pt-16">
+        <header className="relative z-10 py-10">
+          <div className="container mx-auto text-left mb-20">
+            <h2 className="text-4xl font-bold text-blue-600 mb-8">About Us</h2>
+            <div className="container mx-auto text-left mb-10">
+              <h3 className="text-4xl font-bold text-gray-800 gap-8 relative z-10">
+                <span className="block"><span className="text-yellow-400">GateWay Education</span> Providing The</span>
+                <span className="block">Best Opportunities To The <span className="text-gray-800"></span></span>
+                <span className="block">Students Around The Globe<span className="text-yellow-800"></span></span>
+
+              </h3>
+            </div>
+          </div>
+        </header>
 
         <div className="container mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
           {/* Left side (Text) */}
-          <div className="md:w-1/2 text-left">
+          <div className="md:w-1/2 text-left mt-4">
             <p className="text-lg text-gray-700 mb-4">
-              WEEKEND UX is a leading platform offering top-tier e-learning solutions to students worldwide. Our mission is to provide comprehensive learning programs for UI/UX design, empowering students to achieve their career goals and excel in the digital world.
+              GateWay Education is a leading platform offering top-tier e-learning solutions to students worldwide. Our mission is to provide comprehensive learning programs, empowering students to achieve their career goals and excel in the digital world.
             </p>
             <a
               href="#"
@@ -51,7 +58,7 @@ const AboutUs = () => {
             </div>
           </div>
         </div>
-      </section>
+      </div>
 
       {/* Footer */}
       <Footer />
