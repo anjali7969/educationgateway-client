@@ -34,6 +34,10 @@ export const loginUser = async (userData) => {
 
         const response = await api.post("/auth/login", userData);
 
+        if (response.data.token) {
+            localStorage.setItem("authToken", response.data.token);
+        }
+
         console.log("✅ Login Response:", response.data);
         return response.data;
     } catch (error) {
@@ -42,14 +46,69 @@ export const loginUser = async (userData) => {
     }
 };
 
-// ✅ Get Courses Function
+export const getAllUsers = async () => {
+    try {
+        const token = localStorage.getItem("authToken"); // ✅ Ensure token is stored after login
+        console.log("Sending request to fetch users with token:", token);
+
+        const response = await api.get("/user/all", {
+            headers: { Authorization: `Bearer ${token}` },
+        });
+
+        console.log("✅ Users received:", response.data);
+        return response.data;
+    } catch (error) {
+        console.error("❌ Error Fetching Users:", error.response?.data || error.message);
+        throw error;
+    }
+};
+
+// ✅ Update User (Including Role Change)
+export const updateUser = async (userId, updatedData) => {
+    const token = localStorage.getItem("authToken");
+    const response = await api.put(`/user/update/${userId}`, updatedData, {
+        headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data;
+};
+
+// ✅ Delete User
+export const deleteUser = async (userId) => {
+    const token = localStorage.getItem("authToken");
+    await api.delete(`/user/${userId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+    });
+};
+
+
+
+// ✅ Create a New Course
+export const createCourse = async (courseData) => {
+    try {
+        const token = localStorage.getItem("authToken");
+
+        console.log("🔍 Sending Course Data:", courseData); // Debugging Log
+
+        const response = await api.post("/courses/create", courseData, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "multipart/form-data", // ✅ Allow image upload
+            },
+        });
+
+        console.log("✅ Course Created:", response.data);
+        return response.data.course;
+    } catch (error) {
+        console.error("❌ Course Creation Error:", error.response?.data || error.message);
+        throw error;
+    }
+};
+
+
+// ✅ Get Courses from Backend
 export const getCourses = async () => {
     try {
-        console.log("📤 Fetching courses from:", `${API_BASE_URL}/courses`);
-
-        const response = await api.get("/courses");
-
-        console.log("✅ Courses Received:", response.data);
+        const response = await api.get("/courses/all");
         return response.data;
     } catch (error) {
         console.error("❌ Error Fetching Courses:", error.response?.data || error.message);
@@ -57,35 +116,25 @@ export const getCourses = async () => {
     }
 };
 
-//  Get Assignments Function
-// export const getAssignments = async () => {
-//     try {
-//         console.log("📤 Fetching assignments from:", `${API_BASE_URL}/assignment`);
+// ✅ Delete Course
+export const deleteCourse = async (id) => {
+    try {
+        const response = await fetch(`http://localhost:5003/courses/delete/${id}`, {
+            method: "DELETE",
+        });
 
-//         const response = await api.get("/assignment");
+        if (!response.ok) throw new Error("Failed to delete course");
 
-//         console.log("✅ Assignments Received:", response.data);
-//         return response.data;
-//     } catch (error) {
-//         console.error("❌ Error Fetching Assignments:", error.response?.data || error.message);
-//         throw error;
-//     }
-// };
+        // ✅ Remove the course from the state (update UI instantly)
+        setCourses((prevCourses) => prevCourses.filter(course => course._id !== id));
 
-// // ✅ Create a New Assignment Function
-// export const createAssignment = async (assignmentData) => {
-//     try {
-//         console.log("📤 Sending request to create an assignment:", `${API_BASE_URL}/assignment`);
-//         console.log("📝 Data being sent:", assignmentData);
+        console.log("✅ Course deleted successfully");
+    } catch (error) {
+        console.error("❌ Error deleting course:", error);
+    }
+};
 
-//         const response = await api.post("/assignment", assignmentData);
 
-//         console.log("✅ Assignment Created:", response.data);
-//         return response.data;
-//     } catch (error) {
-//         console.error("❌ Assignment Creation Error:", error.response?.data || error.message);
-//         throw error;
-//     }
-// };
+
 
 export default api;
