@@ -125,14 +125,16 @@
 // export default StudentDashboard;
 
 import React, { useEffect, useState } from "react";
-import { FaBook, FaCheckCircle, FaHeart, FaListAlt, FaShoppingCart } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
-import { getCourses } from "../../api/api"; // ✅ Import API call
+import { FaBook, FaCheckCircle, FaHeart, FaListAlt, FaTimes } from "react-icons/fa";
+import { useNavigate, useParams } from "react-router-dom"; // ✅ Add useParams
+import { getCourses, getWishlist } from "../../api/api"; // ✅ Import API call
+
 
 import Footer from "../../components/Footer";
 import Navbar from "../../components/NavBar";
 
 const StudentDashboard = ({ user }) => {
+    const { courseId } = useParams();
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState("dashboard"); // Controls which section is visible
     const [searchTerm, setSearchTerm] = useState("");
@@ -141,44 +143,289 @@ const StudentDashboard = ({ user }) => {
     const [courses, setCourses] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [selectedCourse, setSelectedCourse] = useState(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [wishlistCourses, setWishlistCourses] = useState([]);
+    const [isEnrolled, setIsEnrolled] = useState(false);
 
-    // ✅ Define wishlistCourses here
-    const wishlistCourses = [
-        {
-            id: "1",
-            title: "Complete Web Development",
-            price: "Rs. 1500",
-            oldPrice: "Rs. 2000",
-            rating: "4.8 ⭐",
-            image: "/path-to-web-course.jpg",
-        },
-        {
-            id: "2",
-            title: "Python for Data Science",
-            price: "Rs. 1800",
-            oldPrice: "Rs. 2200",
-            rating: "4.7 ⭐",
-            image: "/path-to-python-course.jpg",
-        },
-        {
-            id: "3",
-            title: "AI & Machine Learning",
-            price: "Rs. 2500",
-            oldPrice: "Rs. 3000",
-            rating: "4.9 ⭐",
-            image: "/path-to-ai-course.jpg",
-        },
-    ];
+
+
+
+
+    const openCourseModal = (course) => {
+        setSelectedCourse(course);
+        setIsModalOpen(true);
+    };
+
+    // Function to close modal
+    const closeCourseModal = () => {
+        setSelectedCourse(null);
+    };
+
+    const [cartCount, setCartCount] = useState(() => {
+        const cart = JSON.parse(localStorage.getItem("cart")) || [];
+        return cart.length; // Set initial cart count
+    });
+
+    const handleEnroll = async (courseId) => {
+        try {
+            const user = JSON.parse(localStorage.getItem("user"));
+            if (!user || !user._id) {
+                alert("Please log in to enroll in a course!");
+                return;
+            }
+
+            // ✅ Step 1: Check Enrollment Status
+            const checkResponse = await fetch(`http://localhost:5003/courses/enrollment/check/${user._id}/${courseId}`, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("authToken")}`
+                }
+            });
+
+            const checkData = await checkResponse.json();
+
+            if (checkData.enrolled) {
+                alert("Already Enrolled in this Course!");
+
+                // ✅ Step 2: Fetch Course Details & Update Cart
+                const courseResponse = await fetch(`http://localhost:5003/courses/${courseId}`, {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("authToken")}`
+                    }
+                });
+
+                const courseData = await courseResponse.json();
+
+                let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+                const isCourseInCart = cart.some(item => item.id === courseId);
+                if (!isCourseInCart) {
+                    cart.push({
+                        id: courseId,
+                        name: courseData.title,
+                        price: courseData.price,
+                        image: courseData.image
+                            ? `http://localhost:5003${courseData.image.startsWith("/") ? courseData.image : "/" + courseData.image}`
+                            : "/default-image.jpg",
+                        quantity: 1
+                    });
+
+                    localStorage.setItem("cart", JSON.stringify(cart)); // ✅ Update localStorage cart
+                    setCartCount(cart.length); // ✅ Update cart count instantly
+                    window.dispatchEvent(new Event("storage")); // ✅ Trigger UI update
+                    console.log("🛒 Course added to cart:", courseData.title);
+                }
+                return;
+            }
+
+            // ✅ Step 3: If Not Enrolled, Enroll the User
+            const response = await fetch(`http://localhost:5003/courses/${courseId}/enroll`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${localStorage.getItem("authToken")}`
+                }
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                console.error("❌ Enrollment Failed:", data.message);
+                alert(data.message);
+                return;
+            }
+
+            console.log("✅ Enrollment Successful:", data);
+
+            // ✅ Step 4: Add to Cart After Enrollment
+            let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+            const isCourseInCart = cart.some(item => item.id === courseId);
+            if (!isCourseInCart) {
+                cart.push({
+                    id: courseId,
+                    name: data.enrollment.title,
+                    price: data.enrollment.price,
+                    image: `http://localhost:5003${data.enrollment.image.startsWith("/") ? data.enrollment.image : "/" + data.enrollment.image}`,
+                    quantity: 1
+                });
+
+                localStorage.setItem("cart", JSON.stringify(cart)); // ✅ Update localStorage cart
+                setCartCount(cart.length); // ✅ Update cart count instantly
+                window.dispatchEvent(new Event("storage")); // ✅ Trigger UI update
+                console.log("🛒 Course added to cart:", data.enrollment.title);
+            }
+
+            alert("Course enrolled and added to cart!");
+
+        } catch (error) {
+            console.error("❌ Error during enrollment:", error);
+        }
+    };
+
+
+
+
+    const handleRemoveFromWishlist = async (course) => {
+        try {
+            const storedUser = JSON.parse(localStorage.getItem("user"));
+            if (!storedUser) return alert("Please login to use wishlist.");
+
+            // ✅ API Call to Remove from Wishlist
+            await removeFromWishlist(storedUser._id, course._id);
+
+            // ✅ Update Local State to Remove the Course
+            setWishlistCourses((prevWishlist) =>
+                prevWishlist.filter((item) => item._id !== course._id)
+            );
+
+            // ✅ Remove from Courses List as well (to remove red heart)
+            setCourses((prevCourses) =>
+                prevCourses.map((c) =>
+                    c._id === course._id ? { ...c, inWishlist: false } : c
+                )
+            );
+        } catch (error) {
+            console.error("Error removing from wishlist:", error);
+        }
+    };
+
+    const handleAddToCart = (course) => {
+        let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+        // Check if course is already in cart
+        const isCourseInCart = cart.some(item => item.id === course._id);
+
+        if (!isCourseInCart) {
+            cart.push({
+                id: course._id,
+                name: course.title,
+                price: course.price,
+                quantity: 1
+            });
+
+            localStorage.setItem("cart", JSON.stringify(cart)); // Save cart to localStorage
+            alert("Course added to cart!");
+        } else {
+            alert("Course is already in the cart!");
+        }
+
+        // Trigger event to update navbar cart count
+        window.dispatchEvent(new Event("storage"));
+    };
+
+
+    // // ✅ Add to Cart Function
+    // const handleAddToCart = (course) => {
+    //     // Navigate to Cart Page with Selected Course
+    //     navigate("/cart", { state: { course } });
+    // };
+
+    const handleWishlistClick = async (course) => {
+        try {
+            const storedUser = JSON.parse(localStorage.getItem("user"));
+            const token = localStorage.getItem("authToken");
+
+            if (!storedUser || !storedUser._id || !token) {
+                alert("Please log in to manage your wishlist.");
+                return;
+            }
+
+            const isCourseInWishlist = wishlistCourses.some((item) => item._id === course._id);
+
+            if (isCourseInWishlist) {
+                console.log("🚀 Removing from wishlist:", course._id);
+
+                // ✅ Remove from Wishlist API Call
+                await fetch(`http://localhost:5003/wishlist/remove/${storedUser._id}/${course._id}`, {
+                    method: "DELETE",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                });
+
+                // ✅ Update Local State
+                setWishlistCourses((prevWishlist) =>
+                    prevWishlist.filter((item) => item._id !== course._id)
+                );
+            } else {
+                console.log("📌 Adding to wishlist:", course._id);
+
+                // ✅ Add to Wishlist API Call
+                const response = await fetch("http://localhost:5003/wishlist/add", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ userId: storedUser._id, courseId: course._id }),
+                });
+
+                const data = await response.json();
+
+                if (!data.success) {
+                    console.warn("⚠️ Wishlist API responded with an error:", data.message);
+                    return;
+                }
+
+                // ✅ Update Local State with New Wishlist
+                setWishlistCourses([...wishlistCourses, course]);
+            }
+
+            // ✅ Refresh wishlist
+            fetchWishlist();
+
+        } catch (error) {
+            console.error("❌ Error updating wishlist:", error);
+        }
+    };
+
+
+
+
+
+    useEffect(() => {
+        const checkEnrollmentStatus = async () => {
+            if (!user || !user._id) return;
+
+            const response = await fetch(`http://localhost:5003/enrollment/check/${user._id}/${courseId}`, {
+                headers: { Authorization: `Bearer ${localStorage.getItem("authToken")}` }
+            });
+
+            const data = await response.json();
+            setIsEnrolled(data.enrolled);
+        };
+
+        checkEnrollmentStatus();
+    }, [courseId]);
+
 
     // 🚀 Redirect Admins to /admin instead of Student Dashboard
+    // useEffect(() => {
+    //     const storedUser = JSON.parse(localStorage.getItem("user"));
+    //     if (!storedUser) {
+    //         navigate("/login"); // Redirect if no user is logged in
+    //     } else if (storedUser.role === "Admin") {
+    //         navigate("/admin"); // Prevent Admins from seeing student dashboard
+    //     }
+    // }, [navigate]);
+
     useEffect(() => {
         const storedUser = JSON.parse(localStorage.getItem("user"));
-        if (!storedUser) {
-            navigate("/login"); // Redirect if no user is logged in
-        } else if (storedUser.role === "Admin") {
-            navigate("/admin"); // Prevent Admins from seeing student dashboard
+        const authToken = localStorage.getItem("authToken");
+
+        console.log("🔍 Checking stored user:", storedUser);
+        console.log("🔍 Checking auth token:", authToken);
+
+        if (!storedUser || !storedUser._id || !authToken) {
+            console.warn("🚨 User ID or token is missing. Cannot fetch wishlist.");
+            return;
         }
-    }, [navigate]);
+
+        getWishlist(storedUser._id);
+    }, []);
+
 
     // ✅ Fetch Courses from Backend
     useEffect(() => {
@@ -195,6 +442,46 @@ const StudentDashboard = ({ user }) => {
             setLoading(false);
         }
     };
+
+    // ✅ Fetch Wishlist on Component Load
+    const fetchWishlist = async () => {
+        try {
+            const storedUser = JSON.parse(localStorage.getItem("user"));
+            const token = localStorage.getItem("authToken"); // 🔥 Get the token
+
+            if (!storedUser || !storedUser._id || !token) {
+                console.warn("⚠️ User ID or token is missing. Cannot fetch wishlist.");
+                return;
+            }
+
+            const response = await fetch(`http://localhost:5003/wishlist/${storedUser._id}`, {
+                headers: {
+                    "Authorization": `Bearer ${token}` // ✅ Send the token
+                }
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                setWishlistCourses(data.wishlist || []);
+                console.log("✅ Wishlist updated:", data.wishlist);
+            } else {
+                console.warn("⚠️ Failed to fetch wishlist:", data.message);
+            }
+        } catch (error) {
+            console.error("❌ Error fetching wishlist:", error);
+        }
+    };
+
+
+
+    useEffect(() => {
+        fetchWishlist(); // ✅ Load Wishlist when page loads
+    }, []);
+
+
+
+
 
     // ✅ Filtered Courses Based on Search & Status
     const filteredCourses = courses
@@ -348,15 +635,24 @@ const StudentDashboard = ({ user }) => {
                                             <p className="text-gray-600 text-sm">{course.description}</p>
 
                                             <div className="flex justify-between items-center mt-3">
-                                                <a
-                                                    href={course.videoUrl}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
+                                                <button
+                                                    onClick={() => openCourseModal(course)}
                                                     className="bg-blue-500 text-white py-2 px-4 rounded text-sm hover:bg-blue-600"
                                                 >
-                                                    Watch Course
-                                                </a>
+                                                    Watch Lecture
+                                                </button>
+
+                                                {/* Wishlist Toggle Button */}
+                                                <button onClick={() => handleWishlistClick(course)} className="transition-all">
+                                                    <FaHeart
+                                                        size={20}
+                                                        className={wishlistCourses.some((item) => item._id === course._id) ? "text-red-500" : "text-gray-500"}
+                                                    />
+                                                </button>
+
+
                                             </div>
+
                                         </div>
                                     ))}
 
@@ -364,50 +660,147 @@ const StudentDashboard = ({ user }) => {
                             )}
                         </>
                     )}
-                    {/* Wishlist Section */}
+
+
+
+
+                    {/* ✅ Course Details Modal */}
+                    {selectedCourse && (
+                        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 px-4">
+                            <div className="bg-white w-full md:w-2/3 lg:w-1/2 p-6 rounded-2xl shadow-2xl flex flex-col md:flex-row relative">
+
+                                {/* ❌ Close Button */}
+                                <button
+                                    onClick={closeCourseModal}
+                                    className="absolute top-4 right-4 text-gray-500 hover:text-gray-800 transition-all"
+                                >
+                                    <FaTimes size={20} />
+                                </button>
+
+                                {/* 📌 Left Side - Course Image */}
+                                <div className="md:w-1/2 flex justify-center items-center">
+                                    <img
+                                        src={selectedCourse.image ? `http://localhost:5003${selectedCourse.image.startsWith("/") ? selectedCourse.image : "/" + selectedCourse.image}` : "/default-image.jpg"}
+                                        alt={selectedCourse.title}
+                                        className="w-full h-64 object-cover rounded-lg"
+                                    />
+                                </div>
+
+                                {/* 📌 Right Side - Course Details */}
+                                <div className="md:w-1/2 md:pl-6 flex flex-col justify-center">
+                                    <h2 className="text-2xl font-bold text-gray-900">{selectedCourse.title}</h2>
+                                    <p className="text-gray-600 mt-2 text-sm">{selectedCourse.description}</p>
+
+                                    {/* 📌 Course Price */}
+                                    <p className="text-green-600 font-bold text-xl mt-3">Rs {selectedCourse.price}</p>
+
+                                    {/* 📌 Enroll Button (Adds to Cart) */}
+                                    <div className="mt-4">
+                                        <button
+                                            onClick={() => !isEnrolled && handleEnroll(selectedCourse._id)}
+                                            className={`px-4 py-2 rounded-lg ${isEnrolled ? "bg-gray-400" : "bg-blue-500 hover:bg-blue-600"} text-white`}
+                                            disabled={isEnrolled}
+                                        >
+                                            {isEnrolled ? "Enrolled" : "Enroll Now"}
+                                        </button>
+
+
+                                        <p className="text-gray-500 text-sm mt-2 text-center">
+                                            Try for Free: Enroll to start your 7-day full access free trial.
+                                            <br /> Financial aid available.
+                                        </p>
+                                    </div>
+
+                                    {/* 📌 Additional Course Details */}
+                                    <div className="bg-gray-100 p-4 rounded-lg mt-4">
+                                        <p className="text-gray-700 font-semibold">✔ Unlimited access to all course materials</p>
+                                        <p className="text-gray-700">✔ Cancel anytime with no penalties</p>
+                                        <p className="text-gray-700 font-semibold">✔ Earn a certificate after completion</p>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    )}
+
+
+
+
+
+
+
+
+
+
+                    {/* ✅ Wishlist Tab */}
                     {activeTab === "wishlist" && (
                         <>
-                            <h2 className="text-2xl font-semibold text-gray-800 mb-4 py-6">Wishlist ({wishlistCourses.length})</h2>
+                            <h2 className="text-2xl font-semibold text-gray-800 mb-4 py-6">
+                                Wishlist ({wishlistCourses.length})
+                            </h2>
                             <div className="bg-white shadow-md rounded-lg overflow-hidden">
                                 <table className="w-full border-collapse">
                                     <thead className="bg-gray-100 text-gray-700">
-                                        <tr>
-                                            <th className="p-4 text-left">Course</th>
-                                            <th className="p-4 text-left">Price</th>
-                                            <th className="p-4 text-left">Action</th>
+                                        <tr className="text-left">
+                                            <th className="p-4">Course</th>
+                                            <th className="p-4">Price</th>
+                                            <th className="p-4 text-center">Action</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {wishlistCourses.map((course) => (
-                                            <tr key={course.id} className="border-b">
-                                                <td className="p-4 flex items-center">
-                                                    <img src={course.image} alt={course.title} className="w-16 h-16 rounded mr-4" />
-                                                    <div>
-                                                        <p className="font-semibold text-gray-700">{course.title}</p>
-                                                        <p className="text-yellow-500 text-sm font-semibold">{course.rating}</p>
-                                                    </div>
-                                                </td>
-                                                <td className="p-4 text-black font-semibold">
-                                                    {course.price} {course.oldPrice && <span className="text-gray-500 line-through ml-2">{course.oldPrice}</span>}
-                                                </td>
-                                                <td className="p-4 flex items-center space-x-2">
-                                                    <button className="bg-gray-300 text-gray-800 px-3 py-2 rounded text-sm hover:bg-gray-400">
-                                                        Buy Now
-                                                    </button>
-                                                    <button className="bg-blue-600 text-white px-3 py-2 rounded text-sm hover:bg-blue-700 flex items-center">
-                                                        <FaShoppingCart className="mr-2" /> Add to Cart
-                                                    </button>
-                                                    <button className="text-red-600 hover:text-black-500">
-                                                        <FaHeart size={20} />
-                                                    </button>
+                                        {wishlistCourses.length > 0 ? (
+                                            wishlistCourses.map((course) => (
+                                                <tr key={course._id} className="border-b">
+                                                    {/* ✅ Course Image & Name */}
+                                                    <td className="p-4 flex items-center space-x-4">
+                                                        <img
+                                                            src={course.image ? `http://localhost:5003${course.image}` : "/default-course.jpg"}
+                                                            alt={course.title}
+                                                            className="w-16 h-16 rounded object-cover"
+                                                        />
+                                                        <div>
+                                                            <p className="font-semibold text-gray-700">{course.title}</p>
+                                                        </div>
+                                                    </td>
+
+                                                    {/* ✅ Price */}
+                                                    <td className="p-4 text-black font-semibold">
+                                                        {course.price ? `Rs ${course.price.toFixed(2)}` : "Free"}
+                                                    </td>
+
+                                                    {/* ✅ Remove from Wishlist */}
+                                                    <td className="p-4 text-center">
+                                                        <div className="flex justify-center items-center space-x-2">
+                                                            <button
+                                                                onClick={() => handleWishlistClick(course)}
+                                                                className="transition-all flex items-center"
+                                                            >
+                                                                <FaHeart
+                                                                    size={20}
+                                                                    className={wishlistCourses.some((item) => item._id === course._id) ? "text-red-500" : "text-gray-500"}
+                                                                />
+                                                            </button>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            ))
+                                        ) : (
+                                            <tr>
+                                                <td colSpan="3" className="text-center text-gray-500 py-4">
+                                                    No courses in wishlist
                                                 </td>
                                             </tr>
-                                        ))}
+                                        )}
                                     </tbody>
                                 </table>
                             </div>
                         </>
                     )}
+
+
+
+
+
 
 
                     {activeTab === "purchaseHistory" && (

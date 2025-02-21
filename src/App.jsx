@@ -5,7 +5,10 @@ import Navbar from "./components/NavBar"; // Import Navbar
 import AboutUs from "./pages/about_us";
 import AdminPanel from "./pages/Admin/admin_panel"; // Admin Panel
 import ManageCourses from "./pages/Admin/ManageCourses"; // Manage Courses
+import ManageOrders from "./pages/Admin/ManageOrders";
 import ManageStudents from "./pages/Admin/ManageStudents"; // Manage Students
+import ShoppingCart from "./pages/cart";
+import Checkout from "./pages/checkout";
 import ContactUs from "./pages/contact_us";
 import Courses from "./pages/courses";
 import HomePage from "./pages/homepage";
@@ -55,12 +58,15 @@ function App() {
                 <Route path="/signup" element={<Signup onSignupSuccess={handleLogin} />} />
                 <Route path="/courses" element={<Courses />} />
                 <Route path="/student" element={<StudentDashboard />} />
+                <Route path="/cart" element={<ShoppingCart />} />
+                <Route path="/checkout/:orderId" element={<Checkout />} />
 
                 {/* 🛑 Admin Panel with Nested Routes */}
                 {user && user.role === "Admin" && (
                     <Route path="/admin" element={<AdminPanel />}>
                         <Route path="courses" element={<ManageCourses />} />
                         <Route path="students" element={<ManageStudents />} />
+                        <Route path="orders" element={<ManageOrders />} />
                     </Route>
                 )}
             </Routes>

@@ -10,6 +10,17 @@ const api = axios.create({
     headers: { 'Content-Type': 'application/json' },
 });
 
+// ✅ Attach Token to Requests
+api.interceptors.request.use((config) => {
+    const token = localStorage.getItem("authToken");
+    if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+}, (error) => {
+    return Promise.reject(error);
+});
+
 //  Register User Function
 export const registerUser = async (userData) => {
     try {
@@ -46,9 +57,10 @@ export const loginUser = async (userData) => {
     }
 };
 
+// ✅ Get All Users
 export const getAllUsers = async () => {
     try {
-        const token = localStorage.getItem("authToken"); // ✅ Ensure token is stored after login
+        const token = localStorage.getItem("authToken");
         console.log("Sending request to fetch users with token:", token);
 
         const response = await api.get("/user/all", {
@@ -80,19 +92,17 @@ export const deleteUser = async (userId) => {
     });
 };
 
-
-
 // ✅ Create a New Course
 export const createCourse = async (courseData) => {
     try {
         const token = localStorage.getItem("authToken");
 
-        console.log("🔍 Sending Course Data:", courseData); // Debugging Log
+        console.log("🔍 Sending Course Data:", courseData);
 
         const response = await api.post("/courses/create", courseData, {
             headers: {
                 Authorization: `Bearer ${token}`,
-                "Content-Type": "multipart/form-data", // ✅ Allow image upload
+                "Content-Type": "multipart/form-data",
             },
         });
 
@@ -103,7 +113,6 @@ export const createCourse = async (courseData) => {
         throw error;
     }
 };
-
 
 // ✅ Get Courses from Backend
 export const getCourses = async () => {
@@ -116,6 +125,27 @@ export const getCourses = async () => {
     }
 };
 
+// ✅ Update Course (NEW FUNCTION)
+
+export const updateCourse = async (courseId, updatedData) => {
+    try {
+        const token = localStorage.getItem("authToken");
+
+        console.log("🔄 Updating Course:", updatedData); // Debugging Log
+
+        const response = await api.put(`/courses/update/${courseId}`, updatedData, {
+            headers: { Authorization: `Bearer ${token}` },
+        });
+
+        console.log("✅ Course Updated:", response.data);
+        return response.data;
+    } catch (error) {
+        console.error("❌ Error Updating Course:", error.response?.data || error.message);
+        throw error;
+    }
+};
+
+
 // ✅ Delete Course
 export const deleteCourse = async (id) => {
     try {
@@ -125,14 +155,145 @@ export const deleteCourse = async (id) => {
 
         if (!response.ok) throw new Error("Failed to delete course");
 
-        // ✅ Remove the course from the state (update UI instantly)
-        setCourses((prevCourses) => prevCourses.filter(course => course._id !== id));
-
         console.log("✅ Course deleted successfully");
     } catch (error) {
         console.error("❌ Error deleting course:", error);
     }
 };
+
+
+export const getWishlist = async () => {
+    const storedUser = JSON.parse(localStorage.getItem("user"));
+    const token = localStorage.getItem("authToken");
+
+    if (!storedUser || !storedUser._id || !token) {
+        console.warn("🚨 User ID or token is missing. Cannot fetch wishlist.");
+        return;
+    }
+
+    console.log("✅ Fetching wishlist for User ID:", storedUser._id);
+
+    try {
+        const response = await api.get(`/wishlist/${storedUser._id}`, {
+            headers: { Authorization: `Bearer ${token}` },
+        });
+        return response.data;
+    } catch (error) {
+        console.error("❌ Error fetching wishlist:", error);
+        throw error;
+    }
+};
+
+
+export const addToWishlist = async (courseId) => {
+    const storedUser = JSON.parse(localStorage.getItem("user"));
+    const token = localStorage.getItem("authToken");
+
+    if (!storedUser || !storedUser._id || !token) {
+        console.warn("🚨 User ID or token is missing. Cannot add to wishlist.");
+        return;
+    }
+
+    console.log("✅ Adding course to wishlist for User ID:", storedUser._id);
+
+    try {
+        const response = await api.post(`/wishlist/add`, { userId: storedUser._id, courseId }, {
+            headers: { Authorization: `Bearer ${token}` },
+        });
+        return response.data;
+    } catch (error) {
+        console.error("❌ Error adding to wishlist:", error);
+        throw error;
+    }
+};
+
+
+export const removeFromWishlist = async (userId, courseId) => {
+    try {
+        const response = await axios.delete(`http://localhost:5003/wishlist/remove`, {
+            data: { userId, courseId }, // Ensure correct format for DELETE request
+        });
+
+        return response.data;
+    } catch (error) {
+        console.error("❌ Error removing from wishlist:", error.response?.data || error);
+        throw error;
+    }
+};
+
+// export const getUserOrders = async (userId) => {
+//     try {
+//         const token = localStorage.getItem("authToken");
+//         const response = await api.get(`/checkout/user-orders/${userId}`, {
+//             headers: { Authorization: `Bearer ${token}` },
+//         });
+
+//         console.log("✅ Fetched user orders:", response.data);
+//         return response.data;
+//     } catch (error) {
+//         console.error("❌ Error fetching orders:", error.response?.data || error.message);
+//         throw error;
+//     }
+// };
+
+// ✅ Get All Orders
+export const getAllOrders = async () => {
+    try {
+        console.log("📤 Fetching all orders...");
+        const response = await api.get("/order/all-orders"); // ✅ Use "API" not "api"
+        return response.data;
+    } catch (error) {
+        console.error("❌ Error fetching orders:", error?.response?.data || error.message);
+        throw error;
+    }
+};
+
+// ✅ Update Order Status
+export const updateOrderStatus = async (orderId, newStatus) => { // ✅ Correct export
+    try {
+        console.log(`📦 Updating order ${orderId} to ${newStatus}`);
+        const response = await api.put(`/order/update/${orderId}`, { status: newStatus });
+        return response.data;
+    } catch (error) {
+        console.error("❌ Error updating status:", error?.response?.data || error.message);
+        throw error;
+    }
+};
+
+// ✅ Delete Order
+export const deleteOrder = async (orderId) => {
+    try {
+        console.log("🗑️ Deleting Order ID:", orderId);
+        const response = await api.delete(`/order/delete/${orderId}`);
+        console.log("✅ Order Deleted Successfully:", response.data);
+        return response.data;
+    } catch (error) {
+        console.error("❌ Error Deleting Order:", error?.response?.data?.message || error.message);
+        throw error;
+    }
+};
+
+
+// ✅ Get User Orders by ID
+// export const getUserOrders = async (userId) => {
+//     try {
+//         const token = localStorage.getItem("authToken");
+//         const response = await api.get(`/checkout/user-orders/${userId}`, {
+//             headers: { Authorization: `Bearer ${token}` },
+//         });
+
+//         console.log("✅ Fetched user orders:", response.data);
+//         return response.data;
+//     } catch (error) {
+//         console.error("❌ Error fetching orders:", error.response?.data || error.message);
+//         throw error;
+//     }
+// };
+
+
+
+
+
 
 
 

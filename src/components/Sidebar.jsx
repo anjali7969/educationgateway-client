@@ -1,17 +1,19 @@
 import React from "react";
+import { FaClipboardList } from "react-icons/fa"; // ✅ Correct import for Orders Icon
 import { FiBook, FiHome, FiLogOut, FiUsers } from "react-icons/fi"; // Sidebar Icons
 import { NavLink, useNavigate } from "react-router-dom";
 
 const Sidebar = ({ onLogout }) => {
     const navigate = useNavigate();
 
-    // Logout Function
     const handleLogout = () => {
         localStorage.removeItem("authToken");
         localStorage.removeItem("user");
-        onLogout(); // Trigger parent logout
-        navigate("/"); // Redirect to home page
+
+        // ✅ Redirect to home and reload to reset layout
+        window.location.href = "/";
     };
+
 
     return (
         <div className="h-screen w-64 bg-white shadow-lg flex flex-col fixed">
@@ -53,9 +55,19 @@ const Sidebar = ({ onLogout }) => {
                 >
                     <FiUsers className="mr-3 text-xl" /> Students
                 </NavLink>
+
+                <NavLink
+                    to="/admin/orders"
+                    className={({ isActive }) =>
+                        `flex items-center px-8 py-4 text-gray-700 transition ${isActive ? "bg-blue-100 text-blue-600 font-semibold" : "hover:bg-gray-100"
+                        }`
+                    }
+                >
+                    <FaClipboardList className="mr-3 text-xl" /> Orders
+                </NavLink>
             </nav>
 
-            {/* Logout Button */}
+            {/* ✅ Fixed Logout Button */}
             <div className="p-6 border-t border-gray-200">
                 <button
                     onClick={handleLogout}
@@ -64,6 +76,7 @@ const Sidebar = ({ onLogout }) => {
                     <FiLogOut className="mr-3 text-xl" /> Logout
                 </button>
             </div>
+
         </div>
     );
 };

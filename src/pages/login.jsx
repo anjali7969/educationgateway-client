@@ -146,43 +146,33 @@ const Login = ({ isOpen, onClose }) => {
     if (!isOpen) return null; // Prevent rendering when closed
 
     const handleLogin = async () => {
-        if (!email || !password) {
-            setError("⚠️ Please fill in all fields.");
-            return;
-        }
-
-        setLoading(true);
-        setError(""); // Reset previous errors
-
         try {
-            const userData = { email, password };
-            const response = await loginUser(userData);
-            console.log("✅ Login Successful:", response);
+            const response = await loginUser({ email, password });
 
-            // Store token & user info in localStorage
-            localStorage.setItem("authToken", response.token);
-            localStorage.setItem("user", JSON.stringify(response.user));
+            console.log("🔍 Login Response:", response);
 
-            // Notify Navbar to update
-            window.dispatchEvent(new Event("storage"));
+            if (response.user && response.user._id && response.token) {
+                localStorage.setItem("authToken", response.token);
+                localStorage.setItem("user", JSON.stringify(response.user));
 
-            alert("🎉 Login Successful!");
-            onClose(); // Close modal after successful login
+                console.log("✅ User saved to localStorage:", JSON.parse(localStorage.getItem("user")));
+                console.log("✅ Token saved:", localStorage.getItem("authToken"));
 
-            // Check user role & redirect accordingly
-            if (response.user.role === "Admin") {
-                navigate("/admin"); // Redirect Admin to Admin Dashboard
+                // Check user role and navigate accordingly
+                if (response.user.role === "Admin") {
+                    navigate("/admin");
+                } else {
+                    navigate("/student");
+                }
             } else {
-                navigate("/student"); // Redirect Students & Others to Homepage
+                console.warn("❌ Login response is missing user ID.");
             }
-
         } catch (error) {
-            console.error("❌ Login Failed:", error.response?.data || error.message);
-            setError(error.response?.data?.message || "Invalid email or password.");
-        } finally {
-            setLoading(false);
+            console.error("❌ Login Failed:", error);
         }
     };
+
+
 
     return (
         <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 backdrop-blur-md z-50">
