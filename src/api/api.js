@@ -273,6 +273,33 @@ export const deleteOrder = async (orderId) => {
     }
 };
 
+// ✅ Get All Enrollments
+export const getAllEnrollments = async () => {
+    try {
+        console.log("📤 Fetching all enrollments...");
+        const response = await api.get("/enrollment/all");  // ✅ API Call
+        console.log("✅ Enrollments received:", response.data);
+        return response.data;
+    } catch (error) {
+        console.error("❌ Error fetching enrollments:", error.response?.data || error.message);
+        throw error;
+    }
+};
+
+
+// ✅ Fetch Dashboard Statistics for Admin Panel
+// export const getDashboardStats = async () => {
+//     try {
+//         console.log("📤 Fetching dashboard statistics...");
+//         const response = await api.get("/admin/dashboard-stats");
+//         console.log("✅ Dashboard Stats Received:", response.data);
+//         return response.data;
+//     } catch (error) {
+//         console.error("❌ Error fetching dashboard stats:", error.response?.data || error.message);
+//         throw error;
+//     }
+// };
+
 
 // ✅ Get User Orders by ID
 // export const getUserOrders = async (userId) => {

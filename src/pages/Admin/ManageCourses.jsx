@@ -38,10 +38,10 @@ const ManageCourses = () => {
 
     // ✅ Handle Course Addition
     const handleAddCourse = async () => {
-        if (!newCourse.title || !newCourse.description || !newCourse.videoUrl || !newCourse.price) {
-            alert("Please fill in all required fields.");
-            return;
-        }
+        // if (!newCourse.title || !newCourse.description || !newCourse.videoUrl || !newCourse.price) {
+        //     alert("Please fill in all required fields.");
+        //     return;
+        // }
 
         try {
             const formData = new FormData();

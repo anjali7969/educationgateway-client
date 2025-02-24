@@ -37,7 +37,7 @@ const ShoppingCart = () => {
             return;
         }
 
-        if (!city || !address || !phoneNumber) {
+        if ( !phoneNumber) {
             alert("Please fill in all shipping details.");
             return;
         }
@@ -53,8 +53,8 @@ const ShoppingCart = () => {
             })),
             totalAmount: cart.reduce((total, item) => total + item.price * item.quantity, 0),
             paymentMethod: "Card Payment",
-            city,
-            address,
+            // city,
+            // address,
             phoneNumber
         };
 
@@ -210,7 +210,7 @@ const ShoppingCart = () => {
                         {/* ✅ Shipping & Payment Details */}
                         <div className="mt-6 space-y-4">
                             {/* ✅ Shipping & Payment Details */}
-                            <div className="mt-6 space-y-4">
+                            {/* <div className="mt-6 space-y-4">
                                 <input
                                     type="text"
                                     placeholder="City"
@@ -225,7 +225,7 @@ const ShoppingCart = () => {
                                     value={address}
                                     onChange={(e) => setAddress(e.target.value)}
                                 />
-                            </div>
+                            </div> */}
 
                             {/* ✅ Phone Number Input */}
                             <div className="mt-6 space-y-4">

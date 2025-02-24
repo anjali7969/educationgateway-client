@@ -54,8 +54,8 @@ function App() {
                 <Route path="/" element={<HomePage />} />
                 <Route path="/aboutus" element={<AboutUs />} />
                 <Route path="/contactus" element={<ContactUs />} />
-                <Route path="/login" element={<Login onLoginSuccess={handleLogin} />} />
-                <Route path="/signup" element={<Signup onSignupSuccess={handleLogin} />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/signup" element={<Signup />} />
                 <Route path="/courses" element={<Courses />} />
                 <Route path="/student" element={<StudentDashboard />} />
                 <Route path="/cart" element={<ShoppingCart />} />

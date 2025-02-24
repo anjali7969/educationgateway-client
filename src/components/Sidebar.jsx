@@ -26,7 +26,7 @@ const Sidebar = ({ onLogout }) => {
             {/* Navigation Links */}
             <nav className="flex flex-col flex-grow mt-4">
                 <NavLink
-                    to="/admin"
+                    to="/admin" // ✅ Corrected path to Admin Panel
                     end // ✅ Ensures exact match for "/admin"
                     className={({ isActive }) =>
                         `flex items-center px-8 py-4 text-gray-700 transition ${isActive ? "bg-blue-100 text-blue-600 font-semibold" : "hover:bg-gray-100"
