@@ -132,7 +132,10 @@
 import React, { useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { loginUser } from "../api/api";
+
 
 const Login = ({ isOpen, onClose }) => {
     const [email, setEmail] = useState("");
@@ -158,6 +161,9 @@ const Login = ({ isOpen, onClose }) => {
                 console.log("✅ User saved to localStorage:", JSON.parse(localStorage.getItem("user")));
                 console.log("✅ Token saved:", localStorage.getItem("authToken"));
 
+                toast.success(`🎉 Welcome back, ${response.user.name || "User"}!`);
+
+
                 // Check user role and navigate accordingly
                 if (response.user.role === "Admin") {
                     navigate("/admin");
@@ -165,10 +171,12 @@ const Login = ({ isOpen, onClose }) => {
                     navigate("/student");
                 }
             } else {
-                console.warn("❌ Login response is missing user ID.");
+                toast.error("❌ Invalid login credentials. Please try again.");
+                setError("Invalid credentials. Please check your email and password.");
             }
         } catch (error) {
             console.error("❌ Login Failed:", error);
+            toast.error("❌ Login failed. Please check your credentials.");
         }
     };
 

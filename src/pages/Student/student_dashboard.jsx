@@ -1,134 +1,11 @@
-// import React, { useEffect, useState } from "react";
-// import { FaBook, FaCheckCircle, FaListAlt } from "react-icons/fa";
-// import { useNavigate } from "react-router-dom";
-// import Footer from "../../components/Footer";
-// import Navbar from "../../components/NavBar";
-
-// const StudentDashboard = () => {
-//     const navigate = useNavigate();
-
-//     // Fetching user details
-//     const [user, setUser] = useState(null);
-
-//     useEffect(() => {
-//         const storedUser = JSON.parse(localStorage.getItem("user"));
-//         if (storedUser) {
-//             setUser(storedUser);
-//         } else {
-//             navigate("/login"); // Redirect to login if no user found
-//         }
-//     }, [navigate]);
-
-//     // Logout function
-//     const handleLogout = () => {
-//         localStorage.removeItem("user");
-//         setUser(null);
-//         navigate("/login");
-//     };
-
-//     return (
-//         <div className="bg-gray-50 min-h-screen">
-//             {/* Navbar */}
-//             <Navbar user={user} onLogout={handleLogout} />
-
-//             {/* Dashboard Container with Proper Spacing */}
-//             <section className="container mx-auto px-6 py-36">
-//                 <div className="bg-white shadow-lg rounded-lg p-6 md:p-10">
-
-//                     {/* Student Profile Section */}
-//                     <div className="flex flex-col md:flex-row items-center justify-between bg-orange-50 p-5 rounded-lg shadow-sm">
-//                         <div className="flex items-center space-x-3">
-//                             <img
-//                                 src="/path-to-profile.jpg"
-//                                 alt="Student Profile"
-//                                 className="w-14 h-14 rounded-full object-cover border border-gray-300"
-//                             />
-//                             <div>
-//                                 <h2 className="text-lg font-bold text-gray-800">{user?.fullName || "Student"}</h2>
-//                                 <p className="text-gray-500 text-sm">Student</p>
-//                             </div>
-//                         </div>
-//                     </div>
-
-//                     {/* Navigation Tabs */}
-//                     <div className="flex justify-around border-b mt-5 pb-2 text-gray-600 text-sm font-medium">
-//                         <button className="px-3 py-2 border-b-2 border-orange-500 text-orange-600">Dashboard</button>
-//                         <button className="px-3 py-2 hover:text-orange-500">Courses</button>
-//                         <button className="px-3 py-2 hover:text-orange-500">Wishlist</button>
-//                         <button className="px-3 py-2 hover:text-orange-500">Purchase History</button>
-//                         <button className="px-3 py-2 hover:text-orange-500">Settings</button>
-//                     </div>
-
-//                     {/* Dashboard Stats */}
-//                     <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-6">
-//                         <div className="bg-red-100 p-4 rounded-lg shadow-md flex items-center">
-//                             <FaBook className="text-red-600 text-3xl mr-3" />
-//                             <div>
-//                                 <p className="text-xl font-semibold text-gray-800">12</p>
-//                                 <p className="text-sm text-gray-600">Enrolled Courses</p>
-//                             </div>
-//                         </div>
-
-//                         <div className="bg-blue-100 p-4 rounded-lg shadow-md flex items-center">
-//                             <FaListAlt className="text-blue-600 text-3xl mr-3" />
-//                             <div>
-//                                 <p className="text-xl font-semibold text-gray-800">5</p>
-//                                 <p className="text-sm text-gray-600">Active Courses</p>
-//                             </div>
-//                         </div>
-
-//                         <div className="bg-green-100 p-4 rounded-lg shadow-md flex items-center">
-//                             <FaCheckCircle className="text-green-600 text-3xl mr-3" />
-//                             <div>
-//                                 <p className="text-xl font-semibold text-gray-800">9</p>
-//                                 <p className="text-sm text-gray-600">Completed Courses</p>
-//                             </div>
-//                         </div>
-//                     </div>
-
-//                     {/* Recommended Courses */}
-//                     <section className="mt-10">
-//                         <h3 className="text-xl font-semibold text-gray-800">Recommended Courses</h3>
-//                         <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-4">
-//                             <div className="bg-white p-4 rounded-lg shadow-md">
-//                                 <img src="/path-to-image.jpg" alt="Course" className="w-full h-36 object-cover rounded" />
-//                                 <h4 className="text-md font-semibold text-gray-800 mt-2">React for Beginners</h4>
-//                                 <button className="mt-2 bg-blue-600 text-white py-2 px-3 rounded text-sm hover:bg-blue-700">
-//                                     Enroll Now
-//                                 </button>
-//                             </div>
-//                             <div className="bg-white p-4 rounded-lg shadow-md">
-//                                 <img src="/path-to-image.jpg" alt="Course" className="w-full h-36 object-cover rounded" />
-//                                 <h4 className="text-md font-semibold text-gray-800 mt-2">Advanced JavaScript</h4>
-//                                 <button className="mt-2 bg-blue-600 text-white py-2 px-3 rounded text-sm hover:bg-blue-700">
-//                                     Enroll Now
-//                                 </button>
-//                             </div>
-//                             <div className="bg-white p-4 rounded-lg shadow-md">
-//                                 <img src="/path-to-image.jpg" alt="Course" className="w-full h-36 object-cover rounded" />
-//                                 <h4 className="text-md font-semibold text-gray-800 mt-2">UI/UX Design Principles</h4>
-//                                 <button className="mt-2 bg-blue-600 text-white py-2 px-3 rounded text-sm hover:bg-blue-700">
-//                                     Enroll Now
-//                                 </button>
-//                             </div>
-//                         </div>
-//                     </section>
-//                 </div>
-//             </section>
-
-//             {/* Footer */}
-//             <Footer />
-//         </div>
-//     );
-// };
-
-// export default StudentDashboard;
-
 import React, { useEffect, useState } from "react";
 import { FaBook, FaCheckCircle, FaHeart, FaListAlt, FaTimes } from "react-icons/fa";
 import { useNavigate, useParams } from "react-router-dom"; // ✅ Add useParams
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css"; // Import Toastify styles
 import { getCourses, getWishlist } from "../../api/api"; // ✅ Import API call
 import profileImage from "../../assets/images/profile-picture.jpg";
+
 
 
 import Footer from "../../components/Footer";
@@ -172,7 +49,7 @@ const StudentDashboard = ({ user }) => {
         try {
             const user = JSON.parse(localStorage.getItem("user"));
             if (!user || !user._id) {
-                alert("Please log in to enroll in a course!");
+                toast.error("Please log in to enroll in a course!");
                 return;
             }
 
@@ -186,7 +63,7 @@ const StudentDashboard = ({ user }) => {
             const checkData = await checkResponse.json();
 
             if (checkData.enrolled) {
-                alert("Already Enrolled in this Course!");
+                toast.info("Already Enrolled in this Course!");
 
                 // ✅ Step 2: Fetch Course Details & Update Cart
                 const courseResponse = await fetch(`http://localhost:5003/courses/${courseId}`, {
@@ -231,8 +108,7 @@ const StudentDashboard = ({ user }) => {
             const data = await response.json();
 
             if (!response.ok) {
-                console.error("❌ Enrollment Failed:", data.message);
-                alert(data.message);
+                toast.error(`Enrollment Failed: ${data.message}`);
                 return;
             }
 
@@ -257,7 +133,7 @@ const StudentDashboard = ({ user }) => {
                 console.log("🛒 Course added to cart:", data.enrollment.title);
             }
 
-            alert("Course enrolled and added to cart!");
+            toast.success("Enrollment Successful! 🎉");
 
         } catch (error) {
             console.error("❌ Error during enrollment:", error);
@@ -306,9 +182,9 @@ const StudentDashboard = ({ user }) => {
             });
 
             localStorage.setItem("cart", JSON.stringify(cart)); // Save cart to localStorage
-            alert("Course added to cart!");
+            toast.success("Course added to cart! 🛒");
         } else {
-            alert("Course is already in the cart!");
+            toast.info("Course is already in the cart!");
         }
 
         // Trigger event to update navbar cart count
@@ -328,7 +204,7 @@ const StudentDashboard = ({ user }) => {
             const token = localStorage.getItem("authToken");
 
             if (!storedUser || !storedUser._id || !token) {
-                alert("Please log in to manage your wishlist.");
+                toast.error("Please log in to manage your wishlist.");
                 return;
             }
 
@@ -352,6 +228,7 @@ const StudentDashboard = ({ user }) => {
                 );
             } else {
                 console.log("📌 Adding to wishlist:", course._id);
+                toast.info("Adding to Wishlist...");
 
                 // ✅ Add to Wishlist API Call
                 const response = await fetch("http://localhost:5003/wishlist/add", {
