@@ -215,7 +215,7 @@ const Login = ({ isOpen, onClose }) => {
                 </div>
 
                 {/* Forgot Password */}
-                <a href="#" className="flex justify-end mb-5 text-indigo-600 text-sm font-medium hover:underline">
+                <a href="/forgot" className="flex justify-end mb-5 text-indigo-600 text-sm font-medium hover:underline">
                     Forgot Password?
                 </a>
 

@@ -286,6 +286,30 @@ export const getAllEnrollments = async () => {
     }
 };
 
+// ✅ Update User Profile (Name, Email)
+export const updateUserProfile = async (userId, updatedData) => {
+    try {
+        const response = await api.put(`/user/update/${userId}`, updatedData);
+        console.log("✅ Profile Updated:", response.data);
+        return response.data;
+    } catch (error) {
+        console.error("❌ Error updating profile:", error.response?.data || error.message);
+        throw error;
+    }
+};
+
+// ✅ Change User Password
+export const changeUserPassword = async (userId, newPassword) => {
+    try {
+        const response = await api.put(`/user/change-password/${userId}`, { password: newPassword });
+        console.log("✅ Password Updated:", response.data);
+        return response.data;
+    } catch (error) {
+        console.error("❌ Error changing password:", error.response?.data || error.message);
+        throw error;
+    }
+};
+
 
 // ✅ Fetch Dashboard Statistics for Admin Panel
 // export const getDashboardStats = async () => {

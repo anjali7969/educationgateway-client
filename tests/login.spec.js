@@ -1,84 +1,69 @@
 // import { expect, test } from '@playwright/test';
 
-// test.describe('Login Page Tests', () => {
+// test.describe('Login Component Tests', () => {
+
 //     test.beforeEach(async ({ page }) => {
-//         await page.goto('http://localhost:5173/login'); // Adjust if your frontend is running on a different port
+//         await page.goto('http://localhost:5173/login', { waitUntil: 'domcontentloaded' });
 //     });
 
 //     test('should render login page correctly', async ({ page }) => {
-//         // Check if login form elements are visible
-//         await expect(page.locator('h2:text("Log In Here")')).toBeVisible();
-//         await expect(page.locator('input[placeholder="Email"]')).toBeVisible();
-//         await expect(page.locator('input[placeholder="Password"]')).toBeVisible();
-//         await expect(page.locator('button:has-text("Login")')).toBeVisible();
-//     });
-
-//     test('should successfully log in with valid Admin credentials', async ({ page }) => {
-//         // Fill in the email and password
-//         await page.fill('input[placeholder="Email"]', 'admin@gmail.com');
-//         await page.fill('input[placeholder="Password"]', 'admin123');
-
-//         // Click the login button
-//         await page.click('button:has-text("Login")');
-
-//         // Wait for redirection to Admin dashboard
-//         await expect(page).toHaveURL('http://localhost:5173/admin');
-//     });
-
-//     test('should successfully log in with valid Patient credentials', async ({ page }) => {
-//         // Fill in the email and password
-//         await page.fill('input[placeholder="Email"]', 'rohankc870@gmail.com');
-//         await page.fill('input[placeholder="Password"]', 'Rohankc');
-
-//         // Click the login button
-//         await page.click('button:has-text("Login")');
-
-//         // Wait for redirection to Patient home page
-//         await expect(page).toHaveURL('http://localhost:5173/home');
-//     });
-
-//     test('should show an error message for invalid credentials', async ({ page }) => {
-//         // Enter incorrect credentials
-//         await page.fill('input[placeholder="Email"]', 'wrong@example.com');
-//         await page.fill('input[placeholder="Password"]', 'wrongpassword');
-
-//         // Click the login button
-//         await page.click('button:has-text("Login")');
-
-//         // Expect an error toast message to be visible
-//         await expect(page.locator('text="Login failed! Please check your credentials."')).toBeVisible();
+//         await expect(page.locator('h1:text("Welcome Back!")')).toBeVisible();
+//         await expect(page.locator('p:text("Log in to continue your learning journey with us.")')).toBeVisible();
+//         await expect(page.locator('input[placeholder="Enter your email"]')).toBeVisible();
+//         await expect(page.locator('input[placeholder="Enter your password"]')).toBeVisible();
+//         await expect(page.locator('button:text("Log In")')).toBeVisible();
+//         await expect(page.locator('a:text("Forgot Password?")')).toBeVisible();
+//         await expect(page.locator('button:text("Sign Up")')).toBeVisible();
 //     });
 
 //     test('should toggle password visibility when clicking the eye button', async ({ page }) => {
-//         // Enter a password
-//         await page.fill('input[placeholder="Password"]', 'password123');
+//         const passwordInput = page.locator('input[placeholder="Enter your password"]');
+//         const eyeButton = page.locator('button:has(svg)'); // Locate button with eye icon
 
-//         // Click the eye button (better selector targeting)
-//         const eyeButton = page.locator('button[aria-label="toggle password visibility"]');
+//         await passwordInput.fill('testpassword123');
+//         await expect(passwordInput).toHaveAttribute('type', 'password');
+
 //         await eyeButton.click();
+//         await expect(passwordInput).toHaveAttribute('type', 'text');
 
-//         // Small wait to ensure UI updates
-//         await page.waitForTimeout(200);
-
-//         // Check if password input type is "text"
-//         const inputType = await page.getAttribute('input[placeholder="Password"]', 'type');
-//         expect(inputType).toBe('text');
-
-//         // Click the eye button again to hide password
 //         await eyeButton.click();
-
-//         // Small wait to ensure UI updates
-//         await page.waitForTimeout(200);
-
-//         // Check if password input type is back to "password"
-//         const hiddenType = await page.getAttribute('input[placeholder="Password"]', 'type');
-//         expect(hiddenType).toBe('password');
+//         await expect(passwordInput).toHaveAttribute('type', 'password');
 //     });
 
-//     test('should navigate to sign-up page when clicking Register', async ({ page }) => {
-//         await page.click('a:has-text("Register")');
+//     test('should show error for invalid login credentials', async ({ page }) => {
+//         await page.fill('input[placeholder="Enter your email"]', 'wrongemail@gmail.com');
+//         await page.fill('input[placeholder="Enter your password"]', 'wrongpassword');
+//         await page.click('button:text("Log In")');
+
+//         await expect(page.locator('text=Something went wrong. Try again.')).toBeVisible({ timeout: 5000 });
+//     });
+
+//     test('should successfully log in and redirect based on user role', async ({ page }) => {
+//         await page.fill('input[placeholder="Enter your email"]', 'testuser@gmail.com');
+//         await page.fill('input[placeholder="Enter your password"]', 'Test@123');
+
+//         await page.click('button:text("Log In")');
+
+//         // Wait for localStorage updates and redirection
+//         await page.waitForTimeout(3000);
+
+//         const userData = await page.evaluate(() => JSON.parse(localStorage.getItem('user')));
+//         expect(userData).not.toBeNull();
+
+//         if (userData.role === "Admin") {
+//             await expect(page).toHaveURL('http://localhost:5173/admin');
+//         } else {
+//             await expect(page).toHaveURL('http://localhost:5173/student');
+//         }
+//     });
+
+//     test('should navigate to signup page when clicking "Sign Up"', async ({ page }) => {
+//         await page.click('button:text("Sign Up")');
 //         await expect(page).toHaveURL('http://localhost:5173/signup');
 //     });
 
-  
+//     test('should navigate to forgot password page when clicking "Forgot Password?"', async ({ page }) => {
+//         await page.click('a:text("Forgot Password?")');
+//         await expect(page).toHaveURL('http://localhost:5173/forgot');
+//     });
 // });

@@ -128,6 +128,7 @@ import React, { useEffect, useState } from "react";
 import { FaBook, FaCheckCircle, FaHeart, FaListAlt, FaTimes } from "react-icons/fa";
 import { useNavigate, useParams } from "react-router-dom"; // ✅ Add useParams
 import { getCourses, getWishlist } from "../../api/api"; // ✅ Import API call
+import profileImage from "../../assets/images/profile-picture.jpg";
 
 
 import Footer from "../../components/Footer";
@@ -906,12 +907,25 @@ const StudentDashboard = ({ user }) => {
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                     {/* Profile Picture Upload */}
                                     <div className="flex flex-col items-center">
-                                        <img src="/path-to-profile.jpg" alt="Profile" className="w-32 h-32 rounded-md object-cover border border-gray-300" />
+                                        {/* Profile Image */}
+                                        <img
+                                            src={profileImage}
+                                            className="w-32 h-32 rounded-full object-cover border-4 border-gray-300 shadow-md"
+                                            alt="Profile"
+                                        />
+
+                                        {/* Hidden File Input for Upload */}
                                         <input type="file" id="profile-upload" className="hidden" />
-                                        <label htmlFor="profile-upload" className="mt-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg cursor-pointer hover:bg-gray-300">
+
+                                        {/* Upload Button */}
+                                        <label
+                                            htmlFor="profile-upload"
+                                            className="mt-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg cursor-pointer hover:bg-gray-300 transition-all"
+                                        >
                                             Upload Photo
                                         </label>
                                     </div>
+
 
                                     {/* Account Details */}
                                     <div className="col-span-2">
