@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { MdModeEditOutline } from "react-icons/md"; // ✅ Edit Icon
 import { RiDeleteBin6Line } from "react-icons/ri"; // ✅ Delete Icon
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { createCourse, deleteCourse, getCourses, updateCourse } from "../../api/api";
 
 const ManageCourses = () => {
@@ -36,13 +38,10 @@ const ManageCourses = () => {
         }
     };
 
+
+
     // ✅ Handle Course Addition
     const handleAddCourse = async () => {
-        // if (!newCourse.title || !newCourse.description || !newCourse.videoUrl || !newCourse.price) {
-        //     alert("Please fill in all required fields.");
-        //     return;
-        // }
-
         try {
             const formData = new FormData();
             formData.append("title", newCourse.title);
@@ -55,10 +54,15 @@ const ManageCourses = () => {
             setCourses([...courses, addedCourse]);
             setNewCourse({ title: "", description: "", videoUrl: "", price: "", image: null });
             setIsModalOpen(false);
+
+            // ✅ Show Success Toast
+            toast.success("Course added successfully!");
+
         } catch (error) {
-            alert("Failed to add course. Please try again.");
+            toast.error("Failed to add course. Please try again.");
         }
     };
+
 
     // ✅ Handle Course Deletion
     const handleDeleteCourse = async (id) => {
@@ -67,7 +71,7 @@ const ManageCourses = () => {
                 await deleteCourse(id);
                 setCourses((prevCourses) => prevCourses.filter((course) => course._id !== id));
             } catch (error) {
-                alert("Failed to delete course. Please try again.");
+                toast.error("Failed to delete course. Please try again.");
             }
         }
     };
@@ -81,7 +85,7 @@ const ManageCourses = () => {
     // ✅ Handle Course Edit
     const handleEditCourse = async () => {
         if (!editCourse.title || !editCourse.description || !editCourse.price) {
-            alert("Title, Description, and Price are required.");
+            toast.info("Title, Description, and Price are required.");
             return;
         }
 
@@ -101,12 +105,14 @@ const ManageCourses = () => {
             setIsEditModalOpen(false);
             setEditCourse(null);
         } catch (error) {
-            alert("Failed to update course. Please try again.");
+            toast.error("Failed to update course. Please try again.");
         }
     };
 
     return (
+
         <div className="p-6 bg-white rounded-lg shadow-md">
+            <ToastContainer position="top-right" autoClose={3000} />
             <div className="flex justify-between items-center mb-4">
                 <h2 className="text-2xl text-gray-800 font-semibold">Manage Courses</h2>
                 <button

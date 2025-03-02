@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import Footer from "../components/Footer"; // ✅ Import Footer
 import Navbar from "../components/NavBar"; // ✅ Import Navbar
 
@@ -27,18 +29,18 @@ const ShoppingCart = () => {
 
     const handleConfirmOrder = async () => {
         if (cart.length === 0) {
-            alert("Cart cannot be empty.");
+            toast.info("Cart cannot be empty.");
             return;
         }
 
         const user = JSON.parse(localStorage.getItem("user"));
         if (!user || !user._id) {
-            alert("You need to log in to place an order.");
+            toast.info("You need to log in to place an order.");
             return;
         }
 
         if (!phoneNumber) {
-            alert("Please fill in all shipping details.");
+            toast.info("Please fill in all shipping details.");
             return;
         }
 
@@ -70,11 +72,11 @@ const ShoppingCart = () => {
 
             const data = await response.json();
             if (!response.ok) {
-                alert(data.message || "Failed to place the order.");
+                toast.error(data.message || "Failed to place the order.");
                 return;
             }
 
-            alert("🎉 Your order has been placed successfully!");
+            toast.success("🎉 Your order has been placed successfully!");
 
             setOrderConfirmed(true);
             setShowOrderPopup(false);
@@ -84,7 +86,7 @@ const ShoppingCart = () => {
                 window.dispatchEvent(new Event("storage"));
             }, 500);
         } catch (error) {
-            alert("An unexpected error occurred.");
+            toast.error("An unexpected error occurred.");
         }
     };
 
@@ -98,7 +100,7 @@ const ShoppingCart = () => {
         setCart([]);
         localStorage.removeItem("cart");
         window.dispatchEvent(new Event("storage"));
-        alert("Your order has been canceled.");
+        toast.success("Your order has been canceled.");
     };
 
 
@@ -140,6 +142,7 @@ const ShoppingCart = () => {
         <>
             {/* ✅ Navbar */}
             <Navbar />
+            <ToastContainer position="top-right" autoClose={3000} />
 
             {/* ✅ Shopping Cart Page */}
             <section className="bg-gray-50 pt-36 pb-10 min-h-screen"> {/* Adjusted top padding for proper spacing */}

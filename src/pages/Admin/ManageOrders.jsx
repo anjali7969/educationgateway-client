@@ -122,6 +122,8 @@
 
 
 import { useEffect, useState } from "react";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { deleteOrder, getAllOrders, updateOrderStatus } from "../../api/api"; // ✅ Correct import
 
 const ManageOrders = () => {
@@ -155,16 +157,25 @@ const ManageOrders = () => {
     };
 
     const handleDeleteOrder = async (orderId) => {
-        try {
-            await deleteOrder(orderId);
-            setOrders((prevOrders) => prevOrders.filter((order) => order._id !== orderId));
-        } catch (error) {
-            console.error("Error deleting order:", error);
+        const confirmDelete = window.confirm("Are you sure you want to delete this order?");
+
+        if (confirmDelete) {
+            try {
+                await deleteOrder(orderId);
+                setOrders((prevOrders) => prevOrders.filter((order) => order._id !== orderId));
+                alert("Order deleted successfully!"); // ✅ Alert after successful deletion
+            } catch (error) {
+                console.error("Error deleting order:", error);
+                alert("Failed to delete the order. Please try again."); // ✅ Error alert
+            }
         }
     };
 
+
     return (
         <div className="p-6">
+            <ToastContainer position="top-right" autoClose={3000} />
+
             <h2 className="text-2xl font-semibold  text-black mb-4">Manage Orders</h2>
             <div className="overflow-x-auto">
                 <table className="min-w-full border-collapse border border-gray-300 rounded-lg shadow-md">
