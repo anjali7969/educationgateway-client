@@ -132,7 +132,6 @@
 import React, { useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { loginUser } from "../api/api";
 
@@ -152,31 +151,18 @@ const Login = ({ isOpen, onClose }) => {
         try {
             const response = await loginUser({ email, password });
 
-            console.log("🔍 Login Response:", response);
-
-            if (response.user && response.user._id && response.token) {
-                localStorage.setItem("authToken", response.token);
-                localStorage.setItem("user", JSON.stringify(response.user));
-
-                console.log("✅ User saved to localStorage:", JSON.parse(localStorage.getItem("user")));
-                console.log("✅ Token saved:", localStorage.getItem("authToken"));
-
-                toast.success(`🎉 Welcome back, ${response.user.name || "User"}!`);
-
-
-                // Check user role and navigate accordingly
-                if (response.user.role === "Admin") {
-                    navigate("/admin");
-                } else {
-                    navigate("/student");
-                }
-            } else {
-                toast.error("❌ Invalid login credentials. Please try again.");
-                setError("Invalid credentials. Please check your email and password.");
+            if (!response.success) {
+                setError(response.message || "Invalid login credentials.");
+                return;
             }
+
+            localStorage.setItem("authToken", response.token);
+            localStorage.setItem("user", JSON.stringify(response.user));
+
+            navigate(response.user.role === "Admin" ? "/admin" : "/student");
         } catch (error) {
-            console.error("❌ Login Failed:", error);
-            toast.error("❌ Login failed. Please check your credentials.");
+            console.error("❌ Login Failed:", error.response?.data || error.message);
+            setError(error.response?.data?.message || "Invalid email or password.");
         }
     };
 

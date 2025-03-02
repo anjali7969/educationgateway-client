@@ -37,7 +37,7 @@ const ShoppingCart = () => {
             return;
         }
 
-        if ( !phoneNumber) {
+        if (!phoneNumber) {
             alert("Please fill in all shipping details.");
             return;
         }
@@ -280,7 +280,7 @@ const ShoppingCart = () => {
                                 Cancel
                             </button>
                             <button
-                                className="py-3 px-6 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
+                                className="py-3 px-6 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
                                 onClick={() => setShowOrderPopup(true)}
                             >
                                 Order
