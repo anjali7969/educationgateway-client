@@ -1,6 +1,6 @@
 import axios from "axios";
 import React, { useState } from "react";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Navbar from "../components/NavBar";
 
@@ -25,6 +25,7 @@ const ForgotPasswordSimple = () => {
     return (
         <>
             <Navbar />
+            <ToastContainer position="top-right" autoClose={3000} />
             <div className="flex items-center justify-center min-h-screen bg-gray-100 px-4">
                 <div className="bg-white p-8 rounded-lg shadow-md max-w-md w-full">
                     <h2 className="text-2xl font-bold text-gray-800 text-center mb-4">Forgot Password</h2>
